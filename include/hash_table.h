@@ -6,27 +6,72 @@
 #include <stdlib.h>
 #include <assert.h>
 
+/**
+An element of the hash table.
+*/
+
 struct hash_node_t
 {
-    struct node_t* qnode;
-    struct hash_node_t *prev, *next;
-    int page;
+    struct node_t* qnode;             /**< a pointer to an element of the list. */
+    struct hash_node_t *prev, *next;  /**< pointers to the previous and next elements of the hash table. */
+    int page;                         /**< the page, located in current element of hash table. */
 };
+
+/**
+Table with the maximum number of pages.
+*/
 
 struct hash_table
 {
-    int hash_limit;
-    struct hash_node_t* table;
+    struct hash_node_t* table;        /**< an array of the elements of the hash table. */
+    int hash_limit;                   /**< maximum number of elements with different hashs. */
 };
+
+/**
+Calculating the hash of the page according to parameter.
+@param page the page, which hash we need to know.
+@param param the maximum number of pages in the hash table.
+@return the hash of the page.
+*/
 
 int compute_hash(int page, int param);
 
+/**
+Creating a hash table.
+@param npage the maximum number of pages in the hash table.
+@return a pointer to the struct of hash table.
+*/
+
 struct hash_table* hash_init(int npage);
 
-struct hash_create_node* find_page(int page, struct hash_table* table);
+/**
+@param page a page which we want to find.
+@param table a pointer to the struct of hash table, where we are searching.
+@return a pointer to the element of hash table if this page is founded or NULL pointer if it is not.
+*/
+
+struct hash_node_t* find_page(int page, struct hash_table* table);
+
+/**
+Adding the page in the hash table.
+@param page a page we want to add.
+@param table a pointer to the struct of hash table, where we want to add.
+@param node a pointer to the element of list, where this page is located.
+*/
 
 void add_page(int page, struct hash_table* table, struct hash_node_t* node);
 
+/**
+Deleting the page from the hash table.
+@param page a page we want to delete.
+@param table a pointer to the struct of hash table, where we want to delete.
+*/
+
 void delete_page(int page, struct hash_table* table);
+
+/**
+Deleting the struct of the hash table.
+@param table a pointer to the struct of the hash table, which we want to delete.
+*/
 
 void free_hash(struct hash_table* table);
