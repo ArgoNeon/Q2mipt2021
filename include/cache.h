@@ -25,7 +25,7 @@ struct cache_result_t
     int data;
 };
 
-struct cache2q_t* cache2q_init(int main_size, int in_size, int out_size);
+struct cache2q_t* cache2q_init(int main_size, int in_size, int out_size, int hashsize);
 
 void cache2q_free (struct cache2q_t* cache);
 
