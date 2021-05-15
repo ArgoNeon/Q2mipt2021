@@ -132,21 +132,21 @@ void test(struct array* arr, struct dat* dat, int hash_size) {
   assert(table);
 
   for (i = 0; i < dat->size; i++) {
-    add_page(dat->mpage[i], table, &(arr->mnode[i]));
+    add_page(table, dat->mpage[i], &(arr->mnode[i]));
   }
 
   for (i = 0; i < dat->size; i++) {
-    assert(find_page(dat->mpage[i], table));
+    assert(find_page(table, dat->mpage[i]));
   }
 
   printf("Add and find\n");
 
   for (i = 0; i < dat->size; i++) {
-    delete_page(dat->mpage[i], table);
+    delete_page(table, dat->mpage[i]);
   }
 
   for (i = 0; i < dat->size; i++) {
-    assert(find_page(dat->mpage[i], table) == NULL);
+    assert(find_page(table, dat->mpage[i]) == NULL);
   }
 
   printf ("Delete and check\n");
