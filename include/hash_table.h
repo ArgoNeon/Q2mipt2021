@@ -71,7 +71,7 @@ void delete_page(int page, struct hash_table* table);
 
 /**
 Deleting the branch with all collisions.
-@param d_node a pointer to the element, starting from which we delete all the elements of the branch.
+@param d_node a pointer to the element, starting from which we delete all elements of the branch.
 */
 
 void free_branch(struct hash_node_t* d_node);

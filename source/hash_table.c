@@ -1,15 +1,19 @@
 #include "hash_table.h"
 
 int compute_hash(int page, int param) {
+
+  assert(page > 0 && param > 0);
   return (page % param);
 };
 
-  struct hash_table* hash_init(int npage){
+struct hash_table* hash_init(int npage){
   struct hash_table* table;
   struct hash_node_t* node;
 
+  assert(npage > 0);
   table = (struct hash_table*)calloc(1, sizeof(struct hash_table));
   node = (struct hash_node_t*)calloc(npage, sizeof(struct hash_node_t));
+  assert(table && node);
 
   table->hash_limit = npage;
   table->table = node;
@@ -21,6 +25,8 @@ struct hash_node_t* find_page(int page, struct hash_table* table) {
   struct hash_node_t* p_node;
   int hash_page;
 
+  assert(page > 0);
+  assert(table);
   hash_page = compute_hash(page, table->hash_limit);
   p_node = &(table->table[hash_page]);
 
@@ -38,7 +44,10 @@ void add_page(int page, struct hash_table* table, struct node_t* list_node) {
   struct hash_node_t* p_node;
   int hash_page;
 
+  assert(page > 0);
+  assert(table && list_node);
   n_node = (struct hash_node_t*)calloc(1, sizeof(struct hash_node_t));
+  assert(n_node);
   hash_page = compute_hash(page, table->hash_limit);
   p_node = &(table->table[hash_page]);
 
@@ -56,28 +65,44 @@ void add_page(int page, struct hash_table* table, struct node_t* list_node) {
 void delete_page(int page, struct hash_table* table) {
   struct hash_node_t* d_node;
 
+  assert(page > 0);
+  assert(table);
   d_node = find_page(page, table);
+  assert(d_node->prev);
 
+  if (d_node != NULL && d_node->next == NULL) {
+    d_node->prev->next = NULL;
+
+    free(d_node);
+    return;
+  }
+
+  if (d_node != NULL){
   d_node->prev->next = d_node->next;
   d_node->next->prev = d_node->prev;
 
   free(d_node);
+  return;
+  }
 };
 
 void free_branch(struct hash_node_t* d_node){
 
-  if (d_node != NULL)
+  if (d_node != NULL) {
   free_branch(d_node->next);
   free(d_node);
+  }
 };
 
 void free_hash(struct hash_table* table) {
-int i;
+  int i;
 
-for (i = 0; i < table->hash_limit; i++) {
-  free_branch(table->table[i].next);
-}
+  assert(table);
+  for (i = 0; i < table->hash_limit; i++) {
+    free_branch(table->table[i].next);
+    table->table[i].next = NULL;
+  }
 
-free(table->table);
-free(table);
+  free(table->table);
+  free(table);
 };
