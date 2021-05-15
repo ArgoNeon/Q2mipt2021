@@ -92,6 +92,14 @@ struct dat* gen_dat(int size) {
   return dat;
 }
 
+void cut_tail(){
+  char x;
+
+  while (x != '\n') {
+    scanf ("%c", &x);
+  }
+}
+
 struct dat* create_dat(int len) {
   struct dat* dat;
   int* page;
@@ -106,6 +114,8 @@ struct dat* create_dat(int len) {
     assert(res == 1);
     page[i] = x;
   }
+
+  cut_tail();
 
   dat->mpage = page;
   dat->size = len;
@@ -161,8 +171,11 @@ void rand_test() {
   test(arr, dat, hash_size);
 }
 
-void rand_tests(int n) {
-  int i;
+void rand_tests() {
+  int i, n;
+
+  printf ("How many rand tests?\n");
+  scanf ("%d", &n);
 
   for (i = 0; i < n; i++) {
     printf ("Test %d\n", i + 1);
@@ -179,14 +192,17 @@ void hand_test(){
   printf ("Write size of the hash table...\n");
   res = scanf ("%d", &hash_size);
   assert(res == 1);
+  cut_tail();
 
-  printf ("Write size of pages...\n");
+  printf ("Write quantity of pages...\n");
   res = scanf ("%d", &npage);
   assert(res == 1);
+  cut_tail();
 
   printf ("Write quantity of requests...\n");
   res = scanf ("%d", &len_dat);
   assert(res == 1);
+  cut_tail();
 
   table = hash_init(hash_size);
   assert(table);
@@ -199,6 +215,19 @@ void hand_test(){
 
 }
 
+void hand_tests() {
+  int i, res, q_htests;
+
+  printf("How many hand tests?\n");
+  res = scanf("%d", &q_htests);
+  assert(res == 1);
+
+  for (i = 0; i < q_htests; i++) {
+    hand_test();
+  }
+
+}
+
 int main() {
   struct array* arr;
   struct hash_table* table;
@@ -207,16 +236,8 @@ int main() {
 
   srand (time(NULL));
 
-  scanf ("%d", &n);
-
-  rand_tests(n);
-  printf("How many hand tests?\n");
-  res = scanf("%d", &q_htests);
-  assert(res == 1);
-
-  for (i = 0; i < q_htests; i++) {
-    hand_test();
-  }
+  rand_tests();
+  hand_tests();
 
   return 0;
 }
