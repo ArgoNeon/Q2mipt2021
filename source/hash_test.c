@@ -78,7 +78,7 @@ struct dat* gen_dat(int size) {
   int i, len;
 
   len = my_rand();
-  dat = (struct dat*)calloc(1, sizeof(struct dat*));
+  dat = (struct dat*)calloc(1, sizeof(struct dat));
   page = (int*)calloc(len, sizeof(int));
   assert(page);
 
@@ -95,23 +95,33 @@ struct dat* gen_dat(int size) {
 void cut_tail(){
   char x;
 
+  scanf ("%c", &x);
+
   while (x != '\n') {
     scanf ("%c", &x);
   }
 }
 
-struct dat* create_dat(int len) {
+struct dat* create_dat(int len, int size) {
   struct dat* dat;
   int* page;
   int i, x, res;
 
-  dat = (struct dat*)calloc(1, sizeof(struct dat*));
+  dat = (struct dat*)calloc(1, sizeof(struct dat));
   page = (int*)calloc(len, sizeof(int));
   assert(page);
 
   for (i = 0; i < len; i++) {
     res = scanf("%d", &x);
     assert(res == 1);
+
+    while (x > size) {
+      cut_tail();
+      printf("Write real page.\n");
+      res = scanf("%d", &x);
+      assert(res == 1);
+    }
+
     page[i] = x;
   }
 
@@ -172,10 +182,17 @@ void rand_test() {
 }
 
 void rand_tests() {
-  int i, n;
+  int i, n, res;
 
   printf ("How many rand tests?\n");
-  scanf ("%d", &n);
+  res = scanf ("%d", &n);
+  printf ("%d\n", n);
+
+  while (res != 1 || n < 0){
+    cut_tail();
+    printf ("Enter a positive number or 0.\n");
+    res = scanf("%d", &n);
+  }
 
   for (i = 0; i < n; i++) {
     printf ("Test %d\n", i + 1);
@@ -204,11 +221,8 @@ void hand_test(){
   assert(res == 1);
   cut_tail();
 
-  table = hash_init(hash_size);
-  assert(table);
-
   printf ("Write all requests...\n");
-  dat = create_dat(len_dat);
+  dat = create_dat(len_dat, npage);
   arr = create_array(npage);
 
   test(arr, dat, hash_size);
@@ -220,13 +234,19 @@ void hand_tests() {
 
   printf("How many hand tests?\n");
   res = scanf("%d", &q_htests);
-  assert(res == 1);
+
+  while (res != 1 || q_htests < 0){
+    cut_tail();
+    printf ("Enter a positive number or 0.\n");
+    res = scanf("%d", &q_htests);
+  }
 
   for (i = 0; i < q_htests; i++) {
     hand_test();
   }
 
 }
+
 
 int main() {
   struct array* arr;
@@ -238,6 +258,7 @@ int main() {
 
   rand_tests();
   hand_tests();
+
 
   return 0;
 }
