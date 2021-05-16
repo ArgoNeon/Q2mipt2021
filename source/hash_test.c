@@ -6,15 +6,28 @@
 #define MAX 50
 #define MIN 16
 
+/**
+Array of pages.
+*/
+
 struct array {
-  struct node_t* mnode;
-  int size;
+  struct node_t* mnode;   /**< a pointer to a array of pages. */
+  int size;               /**< a quantity of array's elements. */
 };
 
+/**
+Array of requests.
+*/
+
 struct dat{
-  int* mpage;
-  int size;
+  int* mpage;             /**< a pointer to a array of requests. */
+  int size;               /**< a quantity of array's elements. */
 };
+
+/**
+Generating of a random number.
+@return a random number
+*/
 
 int my_rand() {
   int x;
@@ -23,12 +36,23 @@ int my_rand() {
   return x;
 }
 
+/**
+Generating a random number not exceeding a certain size.
+@param size the largest possible number.
+@return a random number.
+*/
+
 int my_rand_size(int size) {
   int x;
 
   x = my_rand() % size + 1;
   return x;
 }
+
+/**
+Creating a random array of pages.
+@return a pointer to a random array of pages.
+*/
 
 struct array* gen_array (){
   struct array* arr;
@@ -52,6 +76,11 @@ struct array* gen_array (){
   return arr;
 }
 
+/**
+Creating an array of pages with certain size.
+@param size the quantity of array's elements.
+@return a pointer to an array of pages.*/
+
 struct array* create_array (int size){
   struct array* arr;
   struct node_t* node;
@@ -71,6 +100,12 @@ struct array* create_array (int size){
   arr->mnode = node;
   return arr;
 }
+
+/**
+Creating a random array of requests.
+@param size the largest value for request.
+@return a pointer to a random array of requests.
+*/
 
 struct dat* gen_dat(int size) {
   struct dat* dat;
@@ -92,6 +127,10 @@ struct dat* gen_dat(int size) {
   return dat;
 }
 
+/**
+Deleting unnecessary data.
+*/
+
 void cut_tail(){
   char x;
 
@@ -101,6 +140,13 @@ void cut_tail(){
     scanf ("%c", &x);
   }
 }
+
+/**
+Reading an array of requests with certain size.
+@param len the length of array.
+@param size the largest value for request.
+@return a pointer to an array of requests.
+*/
 
 struct dat* create_dat(int len, int size) {
   struct dat* dat;
@@ -132,6 +178,13 @@ struct dat* create_dat(int len, int size) {
 
   return dat;
 }
+
+/**
+Testing of the hash_table.
+@param a pointer to an array of pages.
+@param a pointer to an array of requests.
+@param hash_size the size of the hash_table.
+*/
 
 void test(struct array* arr, struct dat* dat, int hash_size) {
   struct hash_table* table;
@@ -169,6 +222,10 @@ void test(struct array* arr, struct dat* dat, int hash_size) {
   printf ("Full free\n");
 }
 
+/**
+Creating of a random test.
+*/
+
 void rand_test() {
   struct array* arr;
   struct dat* dat;
@@ -180,6 +237,10 @@ void rand_test() {
 
   test(arr, dat, hash_size);
 }
+
+/**
+Creating of a random tests.
+*/
 
 void rand_tests() {
   int i, n, res;
@@ -199,6 +260,10 @@ void rand_tests() {
     rand_test();
   }
 }
+
+/**
+Reading of the test.
+*/
 
 void hand_test(){
   int hash_size, len_dat, i, npage, res;
@@ -229,6 +294,10 @@ void hand_test(){
 
 }
 
+/**
+Reading of the tests.
+*/
+
 void hand_tests() {
   int i, res, q_htests;
 
@@ -244,8 +313,11 @@ void hand_tests() {
   for (i = 0; i < q_htests; i++) {
     hand_test();
   }
-
 }
+
+/**
+Testing of the basic test.
+*/
 
 void basic_test(struct array* arr, struct dat* dat, int hash_size) {
   struct hash_table* table;
@@ -280,6 +352,10 @@ void basic_test(struct array* arr, struct dat* dat, int hash_size) {
   free(arr);
   printf ("Full free\n");
 }
+
+/**
+Testing of the basic tests.
+*/
 
 void basic_tests() {
   int mas1[6] = {1, 2, 1, 2, 1, 2};
