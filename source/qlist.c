@@ -89,7 +89,53 @@ int list_remove (struct list_t* list, struct node_t* node, struct node_t** disp)
 }
 
 void list_apply_func (struct list_t* list, void (*func)(struct node_t*)){
+    struct node_t* top = list->front;
+    while (top != NULL)
+    {
+        func(top);
+        top = top->next;
+    }
+}
 
+void list_apply_func_reverse (struct list_t* list, void (*func)(struct node_t*)){
+    struct node_t* back = list->back;
+    while (back != NULL)
+    {
+        func(back);
+        back = back->prev;
+    }
+}
+
+void print_node (struct node_t* node){
+    printf("\n { \n key_pointer: %d \n data: %d \n page: %d \n next: %d; prev: %d ", (int)(node->key_pointer)%1000, (nodea->data), (node->page),(int)(node->next)%1000,(int)(node->prev)%1000);
+}
+
+void free_node (struct node_t* node){
+    free(node);
+}
+
+void list_free (struct list_t* list){
+    struct node_t* top = list->front;
+    struct node_t* tmp = NULL;
+    while (top != NULL)
+    {
+        tmp = top->next;
+        free_node(top);
+        top = tmp;
+    }
+    free(list);   
+}
+
+int list_move_front (struct list_t* list, struct node_t* node){
+    if(list_contains_node(struct list_t* list, struct node_t* node)){
+        struct node_t* tmp = list->front;
+        list->front = node;
+        node->prev = NULL;
+        node->next = tmp;
+        tmp->prev = node;
+        return 1;
+    }
+    return 0;
 }
 
 //0 если пуст, 1 - не пуст
