@@ -247,6 +247,62 @@ void hand_tests() {
 
 }
 
+void basic_test(struct array* arr, struct dat* dat, int hash_size) {
+  struct hash_table* table;
+  int i;
+
+  printf ("Start testing...\n");
+  table = hash_init(hash_size);
+  assert(table);
+
+  for (i = 0; i < dat->size; i++) {
+    add_page(table, dat->mpage[i], &(arr->mnode[i]));
+  }
+
+  for (i = 0; i < dat->size; i++) {
+    assert(find_page(table, dat->mpage[i]));
+  }
+
+  printf("Add and find\n");
+
+  for (i = 0; i < dat->size; i++) {
+    delete_page(table, dat->mpage[i]);
+  }
+
+  for (i = 0; i < dat->size; i++) {
+    assert(find_page(table, dat->mpage[i]) == NULL);
+  }
+
+  printf ("Delete and check\n");
+
+  free_hash(table);
+  free(arr->mnode);
+  free(arr);
+  printf ("Full free\n");
+}
+
+void basic_tests() {
+  int mas1[6] = {1, 2, 1, 2, 1, 2};
+  int mas2[7] = {1, 2, 3, 4, 5, 6, 7};
+  int mas3[12] = {1, 2, 3, 4, 1, 2, 5, 1, 2, 4, 3, 4};
+  struct dat dat1 = {mas1, 6};
+  struct dat dat2 = {mas2, 7};
+  struct dat dat3 = {mas3, 12};
+  struct array* arr1, *arr2, *arr3;
+
+  arr1 = create_array(2);
+  arr2 = create_array(3);
+  arr3 = create_array(4);
+
+  printf ("Start basic testing...\n");
+  printf ("Test №1\n");
+  basic_test(arr1, &dat1, dat1.size);
+  printf ("Test №2\n");
+  basic_test(arr2, &dat2, dat2.size);
+  printf ("Test №3\n");
+  basic_test(arr3, &dat3, dat3.size);
+  printf("Accepted\n");
+}
 
 int main() {
   struct array* arr;
@@ -256,6 +312,7 @@ int main() {
 
   srand (time(NULL));
 
+  basic_tests();
   rand_tests();
   hand_tests();
 
