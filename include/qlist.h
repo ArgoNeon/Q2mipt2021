@@ -35,10 +35,10 @@ struct node_t* pregen_node (int page, int data);
 // то содержимое disp (указатель на ноду) начинает указывать на нее
 // если передать в качестве disp NULL, то просто чистится
 // возвращает 0 при успехе, и 1, если что-то не сложилось, например node = NULL
-int list_push_back (struct list_t* list, struct node_t* node, struct node_t** disp);
+void list_push_back (struct list_t* list, struct node_t* node, struct node_t** disp);
 
 // то же, но в начало
-int list_push_front (struct list_t* list, struct node_t* node, struct node_t** disp);
+void list_push_front (struct list_t* list, struct node_t* node, struct node_t** disp);
 
 // Проверяет, принадлежит ли нода списку (сравнивает key_pointer)
 int list_contains_node (struct list_t* list, struct node_t* node);
