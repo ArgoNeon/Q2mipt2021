@@ -3,7 +3,7 @@
 int compute_hash (int page, int param)
 {
 
-    assert (page > 0 && param > 0);
+    assert (page >= 0 && param > 0);
     return (page % param);
 };
 
@@ -20,6 +20,9 @@ struct hash_table* hash_init (int npage)
     table->hash_limit = npage;
     table->table = node;
 
+    for (int i = 0; i < npage; i++)
+        table->table[i].page = -1;
+
     return table;
 };
 
@@ -28,7 +31,7 @@ struct hash_node_t* find_page (struct hash_table* table, int page)
     struct hash_node_t* p_node;
     int hash_page;
 
-    assert (page > 0);
+    assert (page >= 0);
     assert (table);
     hash_page = compute_hash (page, table->hash_limit);
     p_node = & (table->table[hash_page]);
@@ -49,12 +52,12 @@ void add_page (struct hash_table* table, int page, struct node_t* list_node)
     struct hash_node_t* p_node;
     int hash_page;
 
-    assert (page > 0);
+    assert (page >= 0);
     assert (table && list_node);
     n_node = (struct hash_node_t*) calloc (1, sizeof (struct hash_node_t));
     assert (n_node);
     hash_page = compute_hash (page, table->hash_limit);
-    p_node = & (table->table[hash_page]);
+    p_node = &(table->table[hash_page]);
 
     while (p_node->next != NULL) {
         p_node = p_node->next;
@@ -71,10 +74,10 @@ void delete_page (struct hash_table* table, int page)
 {
     struct hash_node_t* d_node;
 
-    assert (page > 0);
+    assert (page >= 0);
     assert (table);
     d_node = find_page (table, page);
-    assert (d_node->prev);
+    assert (d_node);
 
     if (d_node != NULL && d_node->next == NULL) {
         d_node->prev->next = NULL;
