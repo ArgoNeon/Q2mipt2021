@@ -8,13 +8,16 @@ struct list_t* list_init (int maxsize){
     void* key_pointer;
     struct list_t* list;
 
-    assert(maxsize>=0);
+    //maxsize здесь личный параметр списка
+    //список создаётся пустым
+
+    assert(maxsize > 0);
 
     list = (struct list_t*)malloc(sizeof(struct list_t));
     key_pointer = calloc (1,sizeof(char));
 
-    assert(list);
-    assert(key_pointer);
+    assert (list);
+    assert (key_pointer);
 
     list->maxsize = maxsize;
     list->size = 0;
@@ -32,7 +35,7 @@ struct list_t* list_init (int maxsize){
 struct node_t* pregen_node (int page, int data){
     struct node_t* node = (struct node_t*)calloc(1, sizeof(struct node_t));
 
-    assert(node);
+    assert (node);
 
     node->page = page;
     node->data = data;
@@ -49,37 +52,39 @@ struct node_t* pregen_node (int page, int data){
 /// @param [struct node_t* node] node - node pointer
 /// @param [struct node_t** disp] disp - pointer to node trash pointer
 /// @returns 0 or 1
-int list_push_back (struct list_t* list, struct node_t* node, struct node_t** disp){
-
-    if(node==NULL){
-        printf("Пришёл некорректный node = NULL");
-        return 1;
-    }
-
-    //если не влезает, направляем на node disp
-    if(list->size+1>list->maxsize){
-        *disp = node;
-
-        return 0;
-    }
-    node->key_pointer = list->key_pointer;
-    if (list_is_empty(list)==0){
-        node->next = NULL;
-        node->prev = NULL;
-        list->front = node;
-        list->back = list->front;
-
-        return 0;
-    }
-
+void list_push_back (struct list_t* list, struct node_t* node, struct node_t** disp)
+{
+    assert (node != NULL);
+    assert (list != NULL);
+    node->prev = NULL;
     node->next = NULL;
+    node->key_pointer = list->key_pointer;
+
+    if (list_is_empty (list) == 0)
+    {
+        list->front = node;
+        list->back = node;
+        list->size = 1;
+        
+        if (disp != NULL)
+            *disp = NULL;
+        return;
+    }
+
+    list->back->next = node;
     node->prev = list->back;
     list->back = node;
 
-    //изменение размера списка 
-    list->size+=1;
+    list->size += 1;
+    if (list->size > list->maxsize)
+    {
+        list_remove (list, list->back, disp);
+        return;
+    }
 
-    return 0;
+    if (disp != NULL)
+        *disp = NULL;
+    return;
 }
 
 /// adding an element to the beggining
@@ -87,37 +92,38 @@ int list_push_back (struct list_t* list, struct node_t* node, struct node_t** di
 /// @param [struct node_t* node] node - node pointer
 /// @param [struct node_t** disp] disp - pointer to node trash pointer
 /// @returns 0 or 1
-int list_push_front (struct list_t* list, struct node_t* node, struct node_t** disp){
-
-    if(node==NULL){
-        printf("Пришёл некорректный node = NULL");
-        return 1;
-    }
-
-    //если не влезает, направляем на node disp
-    if(list->size+1>list->maxsize){
-        *disp = node;
-
-        return 0;
-    }
-    node->key_pointer = list->key_pointer;
-    if (list_is_empty(list)==0){
-        node->next = NULL;
-        node->prev = NULL;
-        list->front = node;
-        list->back = list->front;
-
-        return 0;
-    }
-
+void list_push_front (struct list_t* list, struct node_t* node, struct node_t** disp){
+    assert (node != NULL);
+    assert (list != NULL);
     node->prev = NULL;
+    node->next = NULL;
+    node->key_pointer = list->key_pointer;
+
+    if (list_is_empty (list) == 0)
+    {
+        list->front = node;
+        list->back = node;
+        list->size = 1;
+        
+        if (disp != NULL)
+            *disp = NULL;
+        return;
+    }
+
+    list->front->prev = node;
     node->next = list->front;
     list->front = node;
 
-    //изменение размера списка 
-    list->size+=1;
+    list->size += 1;
+    if (list->size > list->maxsize)
+    {
+        list_remove (list, list->back, disp);
+        return;
+    }
 
-    return 0;
+    if (disp != NULL)
+        *disp = NULL;
+    return;
 }
 
 /// content check
@@ -125,7 +131,7 @@ int list_push_front (struct list_t* list, struct node_t* node, struct node_t** d
 /// @param [struct node_t* node] node - node pointer
 /// @returns 0 or 1
 int list_contains_node (struct list_t* list, struct node_t* node){
-    if(node->key_pointer==list->key_pointer){
+    if(node->key_pointer == list->key_pointer){
         return 1;
     }
     return 0;
@@ -138,22 +144,39 @@ int list_contains_node (struct list_t* list, struct node_t* node){
 /// @returns 0 or 1
 int list_remove (struct list_t* list, struct node_t* node, struct node_t** disp){
     //проверяем, содержится ли node в list
-    if(list_contains_node(list, node)){
-        if(node->next!=NULL && node->prev!=NULL){
+    if(list_contains_node(list, node))
+    {
+        if(node->next != NULL && node->prev != NULL)
+        {
             node->next->prev = node->prev;
             node->prev->next = node->next;
         }
-        else if(node->next==NULL){
+        else if (node->next == NULL && node->prev == NULL)
+        {
+            list->back = NULL;
+            list->front = NULL;
+        }
+        else if(node->next == NULL)
+        {
+            list->back = node->prev;
             node->prev->next = NULL;
         }
-        else if(node->prev==NULL){
+        else
+        {
+            list->front = node->next;
             node->next->prev = NULL;
         }
 
-        *disp = node;
 
-        //изменение размера списка 
-        list->size-=1;
+        node->next = NULL;
+        node->prev = NULL;
+
+        if (disp != NULL)
+            *disp = node;
+        else
+            free_node (node);
+
+        list->size -= 1;
 
         return 0;
     }
@@ -165,10 +188,13 @@ int list_remove (struct list_t* list, struct node_t* node, struct node_t** disp)
 /// @param [(*func)(struct node_t*)] func - pointer to func to node
 void list_apply_func (struct list_t* list, void (*func)(struct node_t*)){
     struct node_t* top = list->front;
+    struct node_t* temp = top;
+
     while (top != NULL)
     {
-        func(top);
-        top = top->next;
+        temp = temp->next;
+        func (top);
+        top = temp;
     }
 }
 
@@ -177,9 +203,13 @@ void list_apply_func (struct list_t* list, void (*func)(struct node_t*)){
 /// @param [(*func)(struct node_t*)] func - pointer to func to node
 void list_apply_func_reverse (struct list_t* list, void (*func)(struct node_t*)){
     struct node_t* back = list->back;
-    while (back != NULL){
-        func(back);
-        back = back->prev;
+    struct node_t* temp = back;
+
+    while (back != NULL)
+    {
+        temp = temp->prev;
+        func (back);
+        back = temp;
     }
 }
 
@@ -199,14 +229,9 @@ void free_node (struct node_t* node){
 /// list free function  
 /// @param [struct list_t* list] list - list pointer  
 void list_free (struct list_t* list){
-    struct node_t* top = list->front;
-    struct node_t* tmp = NULL;
-    while (top != NULL){
-        tmp = top->next;
-        free_node(top);
-        top = tmp;
-    }
-    free(list);   
+    list_apply_func (list, free_node);
+    free (list->key_pointer);
+    free (list);   
 }
 
 /// return list size function 
@@ -227,11 +252,9 @@ int list_maxsize (struct list_t* list){
 /// @returns 0 or 1
 int list_move_front (struct list_t* list, struct node_t* node){
     if(list_contains_node(list, node)){
-        struct node_t* tmp = list->front;
-        list->front = node;
-        node->prev = NULL;
-        node->next = tmp;
-        tmp->prev = node;
+        struct node_t* tmp;
+        list_remove (list, node, &tmp);
+        list_push_front (list, node, NULL);
         return 1;
     }
     return 0;
@@ -243,15 +266,15 @@ int list_move_front (struct list_t* list, struct node_t* node){
 /// @param [struct list_t* list] list - list pointer  
 /// @returns 0 or 1
 int size_conformity(struct list_t* list){
-    if((list->front != NULL || list->back != NULL)  && list->size == 0){
+    if((list->front != NULL || list->back != NULL)  && list->size == 0)
         return 0;
-    }
-    if((list->front == NULL || list->back == NULL)  && list->size != 0){
+
+    if((list->front == NULL || list->back == NULL)  && list->size != 0)
         return 0;
-    }
-    if(list->size < 0){
+
+    if(list->size < 0)
         return 0;
-    }
+
     return 1;
 
 }
@@ -266,7 +289,7 @@ int list_is_empty (struct list_t* list){
     assert( list );
     assert( size_conformity(list) );
 
-    if(list->size==0){
+    if(list->size == 0){
         return 0;
     }
 
