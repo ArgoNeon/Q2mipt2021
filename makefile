@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -g -Wall -I include
 BASEOBJECTS = cache.o hash_table.o qlist.o
-OBJECTS = $(BASEOBJECTS) cache_test.o hash_test.o list_test.o cache_test hash_test list_test
+OBJECTS = $(BASEOBJECTS) cache_test.o hash_test.o cache_test hash_test
 
 qlist.o: source/qlist.c include/qlist.h
 	$(CC) $(CFLAGS) source/qlist.c -c -o qlist.o
