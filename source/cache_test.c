@@ -16,10 +16,12 @@ void prepared (int argc, char *argv[])
     
     if (scanf ("%d%d", &cache_size, &npages) < 2)
     {
-        printf ("ERROR: not enough data or broken input");
+        printf ("ERROR: not enough data or broken input\n");
         exit (1);
     }
-    cache = cache2q_init ((cache_size + 3) / 4, (cache_size + 1) / 4, cache_size / 2, cache_size * 10);
+    cache = cache2q_init (cache_size / 5, cache_size / 5, 3 * cache_size / 5, cache_size * 10);
+
+    assert (cache != NULL);
 
     for (int i = 0; i < npages; i++)
     {
@@ -36,12 +38,13 @@ void prepared (int argc, char *argv[])
             miss++;
     }
 
-    printf ("Results:\n\tpages: %d\n\thits: %d\n\tmiss: %d\n\thitrate: %f%%\n", npages, hit, miss, (float) hit / npages * 100);
+    printf ("Results:\n\tpages: %d\n\thits: %d\n\tmiss: %d\n\thitrate: %0.1f%%\n", npages, hit, miss, (float) hit / npages * 100);
+    cache2q_free (cache);
 }
 
 void randtest (int argc, char *argv[])
 {
-    int cache_size, npages, pg, maxpage;
+    int cache_size, npages, maxpage;
     int hit = 0, miss = 0;
     struct cache_result_t res;
     struct cache2q_t* cache;
@@ -63,7 +66,8 @@ void randtest (int argc, char *argv[])
             miss++;
     }
 
-    printf ("Results:\n\tpages: %d\n\thits: %d\n\tmiss: %d\n\thitrate: %.1f\n", npages, hit, miss, (float) hit / npages * 100);
+    printf ("Results:\n\tpages: %d\n\thits: %d\n\tmiss: %d\n\thitrate: %.1f%%\n", npages, hit, miss, (float) hit / npages * 100);
+    cache2q_free (cache);
 }
 
 void print_help ()
@@ -78,11 +82,11 @@ void print_help ()
 
 int main (int argc, char *argv[])
 {
-    if (argc == 1 || (argc > 1 && strncmp (argv[1], "--help", 6) == 1))
+    if (argc == 1 || (argc > 1 && strncmp (argv[1], "--help", 6) == 0))
         print_help ();
-    if (argc > 1 && strncmp (argv[1], "-p", 2) == 1)
+    else if (argc > 1 && strncmp (argv[1], "-p", 2) == 0)
         prepared (argc, argv);
-    if (argc > 1 && strncmp (argv[1], "-r", 2) == 1)
+    else if (argc > 1 && strncmp (argv[1], "-r", 2) == 0)
         randtest (argc, argv);
     else
         printf ("%s is not cache_test command. Use \"cache_test --help\" to see all commands\n", argv[1]);
