@@ -406,6 +406,5 @@ int main()
     rand_tests();
     hand_tests();
 
-
     return 0;
 }
