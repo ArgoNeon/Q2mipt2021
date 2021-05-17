@@ -63,3 +63,4 @@ Try to find data in cache. If didn't find calling function, that loads data
 @param page number of page
 @param loaddata loadindng dadta function
 */
+struct cache_result_t cache2q_getdata (struct cache2q_t* cache, int page, int (*loaddata)(int));
