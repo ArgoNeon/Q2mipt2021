@@ -217,7 +217,7 @@ void list_apply_func_reverse (struct list_t* list, void (*func)(struct node_t*))
 /// @param [struct node_t* node] node - node pointer
 void print_node (struct node_t* node){
     //printf("\n { \n key_pointer: %d \n data: %d \n page: %d \n next: %d; prev: %d ", (int)(node->key_pointer)%1000, (node->data), (node->page),(int)(node->next)%1000,(int)(node->prev)%1000);
-    printf("\n { \n data: %d \n page: %d ", (node->data), (node->page));
+    printf("\n{\ndata: %d\npage: %d\n}\n", (node->data), (node->page));
 }
 
 /// free node function  
