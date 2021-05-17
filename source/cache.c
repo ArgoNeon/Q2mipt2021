@@ -5,10 +5,10 @@
 #include "cache.h"
 
 struct cache2q_t* cache2q_init(int main_size, int in_size, int out_size, int hashsize) {
-
-	assert(main_size >= 0);
-	assert(in_size >= 0);
-	assert(out_size >= 0);
+    assert (hashsize > 0);
+	assert (main_size > 0);
+	assert (in_size > 0);
+	assert (out_size > 0);
 
 	struct cache2q_t* cache = (struct cache2q_t*) calloc(1, sizeof(struct cache2q_t));
 	assert(cache);
@@ -32,7 +32,7 @@ void cache2q_free (struct cache2q_t* cache)
 {
     assert (cache != NULL);
 
-    hash_free (cache->hashtable);
+    free_hash (cache->hashtable);
 
     list_free (cache->q_main);
     list_free (cache->q_in);
@@ -46,31 +46,34 @@ struct cache_result_t cache2q_getdata (struct cache2q_t* cache, int page, int (*
     struct cache_result_t result;                                     
     assert (cache != NULL);                                                                                 // Checking cache poitner
 
-
-    struct node_t* node = hash_find_page (cache->hashtable, page);                                          // Try to find page in hash table
-    if (node == NULL)                                                                                       // If not found
+    struct hash_node_t* hash_node = find_page (cache->hashtable, page);                                     // Try to find page in hash table
+    if (hash_node == NULL)                                                                                  // If not found
     {
         struct node_t* node = pregen_node (page, loaddata (page));                                          // Load page
-        struct node_t* disp;                                                                
+        struct node_t* disp = NULL, *disp2 = NULL;                                                              
         list_push_front (cache->q_in, node, &disp);                                                         // Push in input list
         if (disp != NULL)                                                                                   // If element was displaced
         {
-            list_push_front (cache->q_out, disp, &disp);                                                    // Push it in output queue
-            hash_delete_page  (cache->hashtable, disp->page);                                               // delete from hash table
-            free (disp);
+            list_push_front (cache->q_out, disp, &disp2);                                                   // Push it in output queue
+            if (disp2 != NULL)
+            {
+                delete_page (cache->hashtable, disp2->page);                                                // delete from hash table
+                free_node (disp2);
+            }
         }
-
-        hash_add_page (cache->hashtable, page, node);                                                       // Add page to hash table
+        add_page (cache->hashtable, page, node);                                                            // Add page to hash table
 
         result.data = -1;
         result.res = Q_NOTFOUND;
         return result;                                                                                      // exit from function
     }
 
+    struct node_t* node = hash_node->qnode;
+    assert (node != NULL);
     if (list_contains_node (cache->q_main, node) == 1)                                                      // if in main queue
     {
-        int move_res = list_move_front (cache->q_main, node);                                               // page is popular, move it in front of main queue
-
+        if(list_move_front (cache->q_main, node) == 1)                                                      // page is popular, move it in front of main queue
+            assert ("node found in list (main), but can't be moved");
         result.data = node->data;
         result.res = Q_MAIN;
         return result;                                                                                      // if no problem, return from function
@@ -78,7 +81,8 @@ struct cache_result_t cache2q_getdata (struct cache2q_t* cache, int page, int (*
 
     if (list_contains_node (cache->q_in, node) == 1)                                                        // if in input queue
     {
-        int move_res = list_move_front (cache->q_in, node);                                                 // page is popular, move it in front of input queue
+        if(list_move_front (cache->q_main, node) == 1)                                                      // page is popular, move it in front of input queue
+            assert ("node found in list (input), but can't be moved");
 
         result.data = node->data;
         result.res = Q_IN;
@@ -87,11 +91,14 @@ struct cache_result_t cache2q_getdata (struct cache2q_t* cache, int page, int (*
 
     if (list_contains_node (cache->q_out, node) == 1)                                                       // if in output queue
     {
-        struct node_t* disp;
-        list_remove (cache->q_out, node, &disp);                                                            // remove from output queue
-        list_push_front(cache->q_main, disp, &disp);                                                        // push to front of main queue
-        hash_delete_page (cache->hashtable, disp->page);                                                    // delete from hash table
-        free (disp);
+        struct node_t *disp1 = NULL, *disp2 = NULL;
+        list_remove (cache->q_out, node, &disp1);                                                           // remove from output queue
+        list_push_front(cache->q_main, disp1, &disp2);                                                      // push to front of main queue
+        if (disp2 != NULL)
+        {
+            delete_page (cache->hashtable, disp2->page);                                                    // delete from hash table
+            free_node (disp2);
+        }
 
         result.data = node->data;
         result.res = Q_OUT;
